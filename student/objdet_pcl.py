@@ -11,6 +11,8 @@
 #
 
 # general package imports
+import zlib
+
 import cv2
 import numpy as np
 import torch
@@ -51,6 +53,15 @@ def show_pcl(pcl):
     ####### ID_S1_EX2 END #######     
        
 
+def get_range_image(lidar):
+    if len(lidar.ri_return1.range_image_compressed) > 0: # use first response
+        ri = dataset_pb2.MatrixFloat()
+        ri.ParseFromString(zlib.decompress(lidar.ri_return1.range_image_compressed))
+        ri = np.array(ri.data).reshape(ri.shape.dims)
+
+        return ri
+
+
 # visualize range image
 def show_range_image(frame, lidar_name):
 
@@ -59,18 +70,31 @@ def show_range_image(frame, lidar_name):
     print("student task ID_S1_EX1")
 
     # step 1 : extract lidar data and range image for the roof-mounted lidar
-    
+    lidar = waymo_utils.get(frame.lasers, lidar_name)
+    range_image = get_range_image(lidar)
+
     # step 2 : extract the range and the intensity channel from the range image
+    ri_range = range_image[:, :, 0]
+    ri_intensity = range_image[:, :, 1]
     
     # step 3 : set values <0 to zero
-    
+    ri_range[ri_range < 0] = 0
+    ri_intensity[ri_intensity < 0] = 0
+
     # step 4 : map the range channel onto an 8-bit scale and make sure that the full range of values is appropriately considered
-    
+    img_range = ri_range / (np.amax(ri_range) - np.amin(ri_range)) * 255
+
     # step 5 : map the intensity channel onto an 8-bit scale and normalize with the difference between the 1- and 99-percentile to mitigate the influence of outliers
+    percentile_1 = np.percentile(ri_intensity, 1)
+    percentile_99 = np.percentile(ri_intensity, 99)
+
+    ri_intensity[ri_intensity < percentile_1] = percentile_1
+    ri_intensity[ri_intensity > percentile_99] = percentile_99
+    img_intensity = ri_intensity / (percentile_99 - percentile_1) * 255
     
     # step 6 : stack the range and intensity image vertically using np.vstack and convert the result to an unsigned 8-bit integer
-    
-    img_range_intensity = [] # remove after implementing all steps
+    img_range_intensity = np.vstack((img_range, img_intensity))
+    img_range_intensity = img_range_intensity.astype(np.uint8)
     #######
     ####### ID_S1_EX1 END #######     
     
