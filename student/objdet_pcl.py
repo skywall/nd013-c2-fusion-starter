@@ -15,6 +15,7 @@ import zlib
 
 import cv2
 import numpy as np
+import open3d as o3d
 import torch
 
 # add project directory to python path to enable relative imports
@@ -34,20 +35,30 @@ import misc.objdet_tools as tools
 
 # visualize lidar point-cloud
 def show_pcl(pcl):
-
-    ####### ID_S1_EX2 START #######     
+    ####### ID_S1_EX2 START #######
     #######
     print("student task ID_S1_EX2")
 
     # step 1 : initialize open3d with key callback and create window
-    
+    vis = o3d.visualization.VisualizerWithKeyCallback()
+    vis.create_window()
+
     # step 2 : create instance of open3d point-cloud class
+    cloud = o3d.geometry.PointCloud()
 
     # step 3 : set points in pcd instance by converting the point-cloud into 3d vectors (using open3d function Vector3dVector)
+    cloud.points = o3d.utility.Vector3dVector(pcl[:, :3])
 
     # step 4 : for the first frame, add the pcd instance to visualization using add_geometry; for all other frames, use update_geometry instead
-    
+
+    # There is not a good way how to deal with update_geometry, since window lifecycle has to be managed from
+    # outside of show_pcl() function. Fluid point could preview can be achieved with static function variable, but it's
+    # not a good solution.
+    vis.add_geometry(cloud)
+
     # step 5 : visualize point cloud and keep window open until right-arrow is pressed (key-code 262)
+    vis.register_key_callback(262, lambda v: v.destroy_window())
+    vis.run()
 
     #######
     ####### ID_S1_EX2 END #######     
