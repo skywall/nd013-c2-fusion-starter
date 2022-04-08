@@ -49,11 +49,11 @@ def _topk(scores, K=40):
     topk_scores, topk_inds = torch.topk(scores.view(batch, cat, -1), K)
 
     topk_inds = topk_inds % (height * width)
-    topk_ys = (topk_inds // width).int().float()
+    topk_ys = torch.div(topk_inds, width, rounding_mode='trunc').int().float()
     topk_xs = (topk_inds % width).int().float()
 
     topk_score, topk_ind = torch.topk(topk_scores.view(batch, -1), K)
-    topk_clses = (topk_ind // K).int()
+    topk_clses = torch.div(topk_ind, K, rounding_mode='trunc').int()
     topk_inds = _gather_feat(topk_inds.view(batch, -1, 1), topk_ind).view(batch, K)
     topk_ys = _gather_feat(topk_ys.view(batch, -1, 1), topk_ind).view(batch, K)
     topk_xs = _gather_feat(topk_xs.view(batch, -1, 1), topk_ind).view(batch, K)
@@ -130,7 +130,7 @@ def post_processing(detections, configs):
                 detections[i, inds, 4:5],
                 detections[i, inds, 5:6] / (configs.lim_y[1]-configs.lim_y[0]) * configs.bev_width,
                 detections[i, inds, 6:7] / (configs.lim_x[1]-configs.lim_x[0]) * configs.bev_height,
-                get_yaw(detections[i, inds, 7:9]).astype(np.float32)], axis=1)
+                get_yaw(detections[i, inds, 7:9])], axis=1)
             # Filter by conf_thresh
             if len(top_preds[j]) > 0:
                 keep_inds = (top_preds[j][:, 0] > configs.conf_thresh)
