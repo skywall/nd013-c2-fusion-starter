@@ -89,24 +89,23 @@ def measure_detection_performance(detections, labels, labels_valid, min_iou=0.5)
             ious.append(best_match[0])
             center_devs.append(best_match[1:])
 
-
-    ####### ID_S4_EX2 START #######     
+    ####### ID_S4_EX2 START #######
     #######
     print("student task ID_S4_EX2")
-    
+
     # compute positives and negatives for precision/recall
 
     true_positives = len(ious)
 
     ## step 1 : compute the total number of positives present in the scene
-    all_positives = 0
+    all_positives = labels_valid.sum()
 
     ## step 2 : compute the number of false negatives
-    false_negatives = 0
+    false_negatives = all_positives - true_positives
 
     ## step 3 : compute the number of false positives
-    false_positives = 0
-    
+    false_positives = len(detections) - true_positives
+
     #######
     ####### ID_S4_EX2 END #######     
     
