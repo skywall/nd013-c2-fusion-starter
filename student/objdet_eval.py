@@ -13,7 +13,9 @@
 # general package imports
 import numpy as np
 import matplotlib
-matplotlib.use('wxagg') # change backend so that figure maximizing works on Mac as well     
+import shapely
+
+matplotlib.use('wxagg') # change backend so that figure maximizing works on Mac as well
 import matplotlib.pyplot as plt
 
 import torch
@@ -33,9 +35,7 @@ import misc.objdet_tools as tools
 
 # compute various performance measures to assess object detection
 def measure_detection_performance(detections, labels, labels_valid, min_iou=0.5):
-    
-     # find best detection for each valid label 
-    true_positives = 0 # no. of correctly detected objects
+    # find best detection for each valid label
     center_devs = []
     ious = []
     for label, valid in zip(labels, labels_valid):
@@ -49,20 +49,40 @@ def measure_detection_performance(detections, labels, labels_valid, min_iou=0.5)
             print("student task ID_S4_EX1 ")
 
             ## step 1 : extract the four corners of the current label bounding-box
-            
+            label_corners = tools.compute_box_corners(
+                label.box.center_x,
+                label.box.center_y,
+                label.box.width,
+                label.box.length,
+                label.box.heading
+            )
+
             ## step 2 : loop over all detected objects
+            for _, x, y, z, _, w, l, yaw in detections:
 
                 ## step 3 : extract the four corners of the current detection
-                
+                detection_corners = tools.compute_box_corners(x, y, w, l, -yaw)
+
                 ## step 4 : computer the center distance between label and detection bounding-box in x, y, and z
-                
+                center_delta_x = label.box.center_x - x
+                center_delta_y = label.box.center_y - y
+                center_delta_z = label.box.center_z - z
+
                 ## step 5 : compute the intersection over union (IOU) between label and detection bounding-box
-                
+                poly_label = shapely.geometry.Polygon(label_corners)
+                poly_detection = shapely.geometry.Polygon(detection_corners)
+
+                poly_intersection = poly_label.intersection(poly_detection).area
+                poly_union = poly_label.union(poly_detection).area
+                poly_iou = poly_intersection / poly_union
+
                 ## step 6 : if IOU exceeds min_iou threshold, store [iou,dist_x, dist_y, dist_z] in matches_lab_det and increase the TP count
-                
+                if poly_iou > min_iou:
+                    matches_lab_det.append([poly_iou, center_delta_x, center_delta_y, center_delta_z])
+
             #######
-            ####### ID_S4_EX1 END #######     
-            
+            ####### ID_S4_EX1 END #######
+
         # find best match and compute metrics
         if matches_lab_det:
             best_match = max(matches_lab_det,key=itemgetter(1)) # retrieve entry with max iou in case of multiple candidates   
@@ -75,7 +95,9 @@ def measure_detection_performance(detections, labels, labels_valid, min_iou=0.5)
     print("student task ID_S4_EX2")
     
     # compute positives and negatives for precision/recall
-    
+
+    true_positives = len(ious)
+
     ## step 1 : compute the total number of positives present in the scene
     all_positives = 0
 
