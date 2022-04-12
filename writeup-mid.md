@@ -40,3 +40,18 @@ I would like to mention, there is car in image where only front wheel visible so
 ![](img/point_cloud/point_cloud_14.png)
 #### 15 - Rear window, side windows, outside mirrors
 ![](img/point_cloud/point_cloud_15.png)
+
+## Range image
+- `top` - distance to the point
+- `bottom` - intensity of the reflection
+
+![](img/range_image.png)
+
+## BEV (bird's eye view) of the aggregated points from the point cloud
+Image description:
+- `red` - density of the points
+- `blue` - maximum intensity within pack of points
+- `green` - maximum height within pack of points
+- `RGB` - RGB combination of all the above
+
+![](img/bev_map.png)
