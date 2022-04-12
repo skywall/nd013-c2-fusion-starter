@@ -64,9 +64,9 @@ def measure_detection_performance(detections, labels, labels_valid, min_iou=0.5)
                 detection_corners = tools.compute_box_corners(x, y, w, l, -yaw)
 
                 ## step 4 : computer the center distance between label and detection bounding-box in x, y, and z
-                center_delta_x = label.box.center_x - x
-                center_delta_y = label.box.center_y - y
-                center_delta_z = label.box.center_z - z
+                center_delta_x = float(label.box.center_x - x)
+                center_delta_y = float(label.box.center_y - y)
+                center_delta_z = float(label.box.center_z - z)
 
                 ## step 5 : compute the intersection over union (IOU) between label and detection bounding-box
                 poly_label = shapely.geometry.Polygon(label_corners)
