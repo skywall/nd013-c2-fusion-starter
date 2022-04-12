@@ -55,3 +55,15 @@ Image description:
 - `RGB` - RGB combination of all the above
 
 ![](img/bev_map.png)
+
+## Metrics
+
+Specification of used data:
+- `data_filename = 'training_segment-1005081002024129653_5313_150_5333_150_with_camera_labels.tfrecord`
+- `show_only_frames = [50, 150]`
+
+### Computed metrics
+- `precision = 0.9376237623762375`
+- `recall = 0.9496699669966996`
+
+![](img/metrics.png)
