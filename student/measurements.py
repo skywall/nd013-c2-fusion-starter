@@ -48,8 +48,16 @@ class Sensor:
         # otherwise False.
         ############
 
-        return True
-        
+        pos_veh = np.ones((4, 1))
+        pos_veh[0:3] = x[0:3]
+        pos_sens = self.veh_to_sens * pos_veh
+
+        if pos_sens[0] == 0:
+            raise NameError('Not defined for x[0] = 0!')
+
+        angle = np.arctan(pos_sens[1] / pos_sens[0])
+        return self.fov[0] < angle < self.fov[1]
+
         ############
         # END student code
         ############ 
@@ -70,9 +78,19 @@ class Sensor:
             # - make sure to not divide by zero, raise an error if needed
             # - return h(x)
             ############
+            pos_veh = np.ones((4, 1))  # homogeneous coordinates
+            pos_veh[0:3] = x[0:3]
+            pos_sens = self.veh_to_sens * pos_veh  # transform from vehicle to lidar coordinates
 
-            pass
-        
+            hx = np.zeros((2, 1))
+            # check and print error message if dividing by zero
+            if pos_sens[0] == 0:
+                raise NameError('Not defined for x[0] = 0!')
+            else:
+                hx[0, 0] = self.c_i - self.f_i * pos_sens[1] / pos_sens[0]  # project to image coordinates
+                hx[1, 0] = self.c_j - self.f_j * pos_sens[2] / pos_sens[0]
+                return hx
+
             ############
             # END student code
             ############ 
@@ -115,9 +133,8 @@ class Sensor:
         # TODO Step 4: remove restriction to lidar in order to include camera as well
         ############
         
-        if self.name == 'lidar':
-            meas = Measurement(num_frame, z, self)
-            meas_list.append(meas)
+        meas = Measurement(num_frame, z, self)
+        meas_list.append(meas)
         return meas_list
         
         ############
@@ -155,9 +172,15 @@ class Measurement:
             ############
             # TODO Step 4: initialize camera measurement including z and R 
             ############
+            self.z = np.zeros((sensor.dim_meas, 1)) # measurement vector
+            self.z[0] = z[0]
+            self.z[1] = z[1]
 
-            pass
-        
+            self.R = np.matrix([
+                [params.sigma_cam_i ** 2, 0],  # measurement noise covariance matrix
+                [0, params.sigma_cam_j ** 2]
+            ])
+
             ############
             # END student code
             ############ 
