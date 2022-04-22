@@ -115,8 +115,9 @@ class Trackmanagement:
         # delete old tracks
         def track_invalid(t: Track):
             position_invalid = (t.P[0, 0] > params.max_P or t.P[1, 1] > params.max_P) and (t.state == 'initialized' or t.state == 'tentative')
-            low_score = (t.score < params.delete_threshold) and (t.state == 'confirmed')
-            return position_invalid or low_score
+            low_score_confirmed = (t.score < params.delete_threshold) and (t.state == 'confirmed')
+            negative_score = t.score < 0
+            return position_invalid or low_score_confirmed or negative_score
 
         for t in self.track_list:
             if track_invalid(t):
