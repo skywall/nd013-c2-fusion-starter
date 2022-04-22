@@ -94,7 +94,7 @@ class Association:
         # TODO Step 3: return True if measurement lies inside gate, otherwise False
         ############
 
-        return MHD < chi2.ppf(0.99, sensor.dim_meas)
+        return MHD < chi2.ppf(params.gating_threshold, sensor.dim_meas)
         
         ############
         # END student code
