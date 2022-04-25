@@ -11,6 +11,8 @@
 #
 
 # imports
+import math
+
 import numpy as np
 from scipy.stats.distributions import chi2
 
@@ -109,7 +111,7 @@ class Association:
 
         gamma = KF.gamma(track, meas)
         S = KF.S(track, meas, H)
-        MHD = gamma.transpose() * np.linalg.inv(S) * gamma
+        MHD = math.sqrt(gamma.transpose() * np.linalg.inv(S) * gamma)
 
         return MHD
         
