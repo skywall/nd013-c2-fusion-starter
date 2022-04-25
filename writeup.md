@@ -30,7 +30,10 @@ I consider this part most difficult because small errors or typos in matrices ar
 sure what coordinates you're currently working with and make sure to transform between sensor a vehicle coordinates when
 necessary.
 
-![](img/multi_target_track_detection_preview.mp4)
+<video src="https://user-images.githubusercontent.com/5667370/165120617-718554e9-860f-49bc-89de-fbe411973a9f.mp4" controls="controls" style="max-width: 730px;">
+</video>
+
+[Link to download video](https://github.com/skywall/nd013-c2-fusion-starter/blob/main/img/multi_target_track_detection_preview.mp4)
 
 ### 2. Do you see any benefits in camera-lidar fusion compared to lidar-only tracking (in theory and in your concrete results)?
 
